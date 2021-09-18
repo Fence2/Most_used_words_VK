@@ -1,6 +1,7 @@
 # Personal
 .idea
-settings.py
+modules/settings.py
+data
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
