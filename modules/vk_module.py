@@ -1,7 +1,8 @@
+import json
+import os
+
 from tqdm import tqdm
 from vk_api import VkApi
-import os
-import json
 
 import modules.settings as settings
 
@@ -9,6 +10,8 @@ vk = VkApi(token=settings.token).get_api()
 
 MY_ID = vk.users.get()[0]["id"]
 
+
+# DONE
 def crop_dict(dictionary: dict, keys: list) -> dict:
     """
     Функция обрезает словарь, оставляя только определённые ключи из списка keys.
@@ -19,7 +22,8 @@ def crop_dict(dictionary: dict, keys: list) -> dict:
     return {k: v for k, v in dictionary.items() if k in keys}
 
 
-def get_conversations() -> list[dict]:
+# ALMOST DONE
+def get_20conversations() -> list[dict]:
     """
     Функция получает и возвращает отредактированный список 20 бесед пользователя.
 
@@ -51,14 +55,26 @@ def get_conversations() -> list[dict]:
     return conversations
 
 
-def get_conversations_from_file(file_path=f"data/{MY_ID}_conversations_ids.txt"):
+# ALMOST DONE
+def get_conversations_from_file(file_path=f"data/{MY_ID}_conversations_ids.txt", rewrite=False):
+    """
+    Функция создаёт json файл со всеми ID и названиями бесед из файла со списком этих ID.
+
+    Если json файл данного пользователя уже существует - загружает его.
+
+    :param file_path: Путь к файлу, в котором на каждой строке указан ID беседы
+    :param rewrite: Нужно ли перезаписать json файл?
+    :return: список словарей, где каждый словарь - отдельная беседа с ключами type, id, name
+    """
+
     conversations = list()
-    if os.path.exists(f"data/{MY_ID}_conversations_FULL.json"):
+    if os.path.exists(f"data/{MY_ID}_conversations_FULL.json") and not rewrite:
         with open(f"data/{MY_ID}_conversations_FULL.json", encoding="utf-8") as file:
             conversations = json.load(file)
-            print(f"Всего бесед: {len(conversations)}")
-            for _ in tqdm(conversations, desc="Загрузка бесед", colour="blue"):
-                pass
+            if settings.view == "Console":
+                print(f"Всего бесед: {len(conversations)}")
+                for _ in tqdm(conversations, desc="Загрузка бесед", colour="blue"):
+                    pass
     else:
         with open(file_path) as file:
             ids = [int(line.strip()) for line in file if line.strip().replace("-", "").isdigit()]
@@ -83,6 +99,7 @@ def get_conversations_from_file(file_path=f"data/{MY_ID}_conversations_ids.txt")
     return conversations
 
 
+# DONE
 def get_chat_info(id: int, type="user") -> dict:
     """
     Функция возвращает информацию о беседе в виде словаря двух ключей: name, id

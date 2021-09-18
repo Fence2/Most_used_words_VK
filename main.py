@@ -1,6 +1,5 @@
 from modules.console import *
 import modules.vk_module as vk
-from modules.settings import *
 import modules.parser as parser
 
 if __name__ == '__main__':
