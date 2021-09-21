@@ -2,6 +2,7 @@ from bs4 import BeautifulSoup
 import os
 
 def select_conversations_from_file(*, my_id, file=None):
+    #TODO Написать doc-строку
     if file is None:
         files = list(filter(lambda x: x.endswith(".html"), os.listdir()))
         if len(files) == 0:

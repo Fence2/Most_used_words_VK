@@ -82,6 +82,7 @@ def get_conversations_from_file(file_path=f"data/{MY_ID}_conversations_ids.txt",
                 print(f"Всего бесед: {len(ids)}")
                 ids = tqdm(ids, desc="Загрузка бесед", colour="blue")
             for id in ids:
+                chat_info = {"total": get_messages_amount(id)["count"]}
                 type = "user"
                 if id >= 2_000_000_000:
                     id = id % 10000
@@ -89,12 +90,12 @@ def get_conversations_from_file(file_path=f"data/{MY_ID}_conversations_ids.txt",
                 elif id < 0:
                     id = -id
                     type = "group"
-                chat_info = {"type": type}
+                chat_info["type"] = type
                 for k, v in get_chat_info(id, type).items():
                     chat_info[k] = v
                 conversations.append(chat_info)
-        with open(f"data/{MY_ID}_conversations_FULL.json", "w", encoding="utf-8") as file:
-            json.dump(conversations, file, ensure_ascii=False)
+        with open(f"data/{MY_ID}_conversations_FULL.json", "w", encoding="utf-8") as json_file:
+            json.dump(conversations, json_file, ensure_ascii=False)
 
     return conversations
 
@@ -102,7 +103,7 @@ def get_conversations_from_file(file_path=f"data/{MY_ID}_conversations_ids.txt",
 # DONE
 def get_chat_info(id: int, type="user") -> dict:
     """
-    Функция возвращает информацию о беседе в виде словаря двух ключей: name, id
+    Функция возвращает информацию о беседе в виде словаря двух ключей: name, id, total #TODO
 
     :param id: идентификатор беседы, информацию о которой нужно получить
     :param type: тип беседы (user, chat, group)
@@ -113,13 +114,17 @@ def get_chat_info(id: int, type="user") -> dict:
         chat["name"] = f'{chat["first_name"]}{" " if chat["last_name"] else ""}{chat["last_name"]}'
         del chat["first_name"]
         del chat["last_name"]
-        return chat
 
     elif type == "chat":
         chat = crop_dict(vk.messages.getChat(chat_id=id), ["title", "id"])
         chat["name"] = chat["title"]
         del chat["title"]
-        return chat
 
     elif type == "group":
-        return crop_dict(vk.groups.getById(group_ids=id)[0], ["name", "id"])
+        chat = crop_dict(vk.groups.getById(group_ids=id)[0], ["name", "id"])
+
+    return chat
+
+
+def get_messages_amount(user_id):
+    return vk.messages.getHistory(user_id=user_id, count=0)
